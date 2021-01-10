@@ -11,7 +11,7 @@
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.0</version>
+				<version>3.8.1</version>
 				<executions>
 					<execution>
 						<id>compile-test</id>
@@ -20,8 +20,8 @@
 							<goal>testCompile</goal>
 						</goals>
 						<configuration>
-							<testSource>1.6</testSource>
-							<testTarget>1.6</testTarget>
+							<testSource>1.8</testSource>
+							<testTarget>1.8</testTarget>
 						</configuration>
 					</execution>
 				</executions>
