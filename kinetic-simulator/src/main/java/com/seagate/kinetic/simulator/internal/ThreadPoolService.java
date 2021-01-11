@@ -57,11 +57,11 @@ public class ThreadPoolService {
 		}
 
 		// schedule heart beat
-		if (engine.getServiceConfiguration().getTickTime() > 0) {
-			this.timer.scheduleAtFixedRate(engine.getHearBeat(), 1000,
-					engine
-					.getServiceConfiguration().getTickTime());
-		}
+	//	if (engine.getServiceConfiguration().getTickTime() > 0) {
+	//		this.timer.scheduleAtFixedRate(engine.getHearBeat(), 1000,
+	//				engine
+	//				.getServiceConfiguration().getTickTime());
+	//	}
 	}
 
 	public synchronized void deregister(SimulatorEngine engine) {
