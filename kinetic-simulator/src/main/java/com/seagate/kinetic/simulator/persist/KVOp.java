@@ -308,7 +308,7 @@ public class KVOp {
                 }
 
             } catch (KVStoreNotFound e) {
-                handleException(Status.StatusCode.NOT_FOUND);
+                handleException(Status.StatusCode.NOT_FOUND, e.getMessage());
             } catch (KVStoreVersionMismatch e) {
                 handleException(Status.StatusCode.VERSION_MISMATCH);
             } catch (KVStoreException e) {
