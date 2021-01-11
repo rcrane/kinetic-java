@@ -34,7 +34,7 @@ public class SimulatorRunner {
 		StringBuffer sb = new StringBuffer();
 		sb.append("usage: startSimulator\n");
 		sb.append("startSimulator -h|-help\n");
-		sb.append("startSimulator [-port <port>] [-tlsport <port>] [-home <kinetichome>]");
+		sb.append("startSimulator [-port <port>] [-tlsport <port>] [-home <kinetichome>] [-backend <memory/disk>]");
 		System.out.println(sb.toString());
 	}
 
@@ -121,7 +121,8 @@ public class SimulatorRunner {
 						&& !arg.equalsIgnoreCase("-help")
 						&& !arg.equalsIgnoreCase("-port")
 						&& !arg.equalsIgnoreCase("-tlsport")
-						&& !arg.equalsIgnoreCase("-home")) {
+						&& !arg.equalsIgnoreCase("-home")
+						&& !arg.equalsIgnoreCase("-backend")) {
 					throw new IllegalArgumentException("Illegal arguments");
 				}
 			}
@@ -160,6 +161,15 @@ public class SimulatorRunner {
 
 					simulatorConfig = simulatorRunner.initConfig(port, tslport,
 							dbhome);
+
+					String backend = simulatorRunner.getArgValue("-backend", args);
+					if (backend.contentEquals("memory")) {
+                     				 simulatorConfig.setUseMemoryStore(true);
+		                       }else{
+			                        simulatorConfig.setUseMemoryStore(false);
+                        			//TODO: Set system properties "kinetic.db.class" to null
+		                       }
+
 					simulator = new KineticSimulator(simulatorConfig);
 
 					logger.info("Kinetic simulator started, port: "
