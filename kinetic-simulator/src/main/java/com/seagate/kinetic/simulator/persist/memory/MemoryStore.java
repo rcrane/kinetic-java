@@ -318,7 +318,7 @@ public class MemoryStore implements Store<ByteString, ByteString, KVValue> {
     ByteString getVersion(ByteString key) throws KVStoreException {
         KVValue obj = get(key);
         if (obj == null)
-            throw new KVStoreNotFound();
+            throw new KVStoreNotFound(new String(key.toByteArray()));
         if (!obj.hasVersion())
             return ByteString.EMPTY;
         return obj.getVersion();
