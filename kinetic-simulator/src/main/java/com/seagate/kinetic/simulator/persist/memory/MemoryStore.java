@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -58,7 +60,7 @@ public class MemoryStore implements Store<ByteString, ByteString, KVValue> {
             .getLogger(MemoryStore.class.getName());
 
     // memory tree map
-    private TreeMap<byte[], byte[]> sortedMap = null;
+    private ConcurrentSkipListMap<byte[], byte[]> sortedMap = null;
 
     // file to store the tree
     private String dbFile = null;
@@ -77,8 +79,7 @@ public class MemoryStore implements Store<ByteString, ByteString, KVValue> {
     }
 
     @Override
-    public synchronized void put(ByteString key, ByteString oldVersion,
-            KVValue value, PersistOption pOption) throws KVStoreException {
+    public void put(ByteString key, ByteString oldVersion, KVValue value, PersistOption pOption) throws KVStoreException {
 
         ByteString version = null;
 
@@ -100,8 +101,7 @@ public class MemoryStore implements Store<ByteString, ByteString, KVValue> {
     }
 
     @Override
-    public synchronized void putForced(ByteString key, KVValue value,
-            PersistOption pOption) throws KVStoreException {
+    public void putForced(ByteString key, KVValue value, PersistOption pOption) throws KVStoreException {
 
         try {
 
@@ -115,8 +115,7 @@ public class MemoryStore implements Store<ByteString, ByteString, KVValue> {
     }
 
     @Override
-    public synchronized void delete(ByteString key, ByteString oldVersion,
-            PersistOption pOption) throws KVStoreException {
+    public void delete(ByteString key, ByteString oldVersion, PersistOption pOption) throws KVStoreException {
 
         ByteString prevVersion = getVersion(key);
 
@@ -126,8 +125,7 @@ public class MemoryStore implements Store<ByteString, ByteString, KVValue> {
     }
 
     @Override
-    public synchronized void deleteForced(ByteString key, PersistOption pOption)
-            throws KVStoreException {
+    public void deleteForced(ByteString key, PersistOption pOption) throws KVStoreException {
 
         try {
             sortedMap.remove(key.toByteArray());
@@ -137,44 +135,43 @@ public class MemoryStore implements Store<ByteString, ByteString, KVValue> {
     }
 
     @Override
-    public synchronized KVValue get(ByteString key) throws KVStoreException {
+    public KVValue get(ByteString key) throws KVStoreException {
 
         byte[] object = this.sortedMap.get(key.toByteArray());
 
         if (object == null)
-            throw new KVStoreNotFound();
+            throw new KVStoreNotFound(new String(key.toByteArray()));
 
         return new KVValue(object);
     }
 
     @Override
-    public synchronized KVValue getPrevious(ByteString key)
-            throws KVStoreException {
+    public KVValue getPrevious(ByteString key) throws KVStoreException {
 
         byte[] key1 = sortedMap.lowerKey(key.toByteArray());
 
         if (key1 == null)
-            throw new KVStoreNotFound();
+            throw new KVStoreNotFound(new String(key.toByteArray()));
 
         return new KVValue(sortedMap.get(key1));
     }
 
     @Override
-    public synchronized KVValue getNext(ByteString key) throws KVStoreException {
+    public KVValue getNext(ByteString key) throws KVStoreException {
 
         // logger.info("getNext key=" + key.toStringUtf8());
 
         byte[] key1 = sortedMap.higherKey(key.toByteArray());
 
         if (key1 == null) {
-            throw new KVStoreNotFound();
+            throw new KVStoreNotFound(new String(key.toByteArray()));
         }
 
         return new KVValue(sortedMap.get(key1));
     }
 
     @Override
-    public synchronized SortedMap<?, ?> getRange(ByteString startKey,
+    public SortedMap<?, ?> getRange(ByteString startKey,
             boolean startKeyInclusive, ByteString endKey,
             boolean endKeyInclusive, int n) throws KVStoreException {
 
@@ -206,7 +203,7 @@ public class MemoryStore implements Store<ByteString, ByteString, KVValue> {
     }
 
     @Override
-    public synchronized List<?> getRangeReversed(ByteString startKey,
+    public List<?> getRangeReversed(ByteString startKey,
             boolean startKeyInclusive, ByteString endKey,
             boolean endKeyInclusive, int n) throws KVStoreException {
 
@@ -281,6 +278,9 @@ public class MemoryStore implements Store<ByteString, ByteString, KVValue> {
 
     @Override
     public void reset() throws KVStoreException {
+    	
+    	System.out.println("Reseting memory Backend");
+    	
         // clean data
         this.sortedMap.clear();
 
@@ -328,6 +328,8 @@ public class MemoryStore implements Store<ByteString, ByteString, KVValue> {
     @Override
     public void init(SimulatorConfiguration config) {
 
+    	System.out.println("Starting memory Backend");
+    	
         this.config = config;
 
         // default home folder
@@ -375,7 +377,7 @@ public class MemoryStore implements Store<ByteString, ByteString, KVValue> {
             // read memory tree
             fis = new FileInputStream(dbFile);
             ois = new ObjectInputStream(fis);
-            this.sortedMap = (TreeMap<byte[], byte[]>) ois.readObject();
+            this.sortedMap = (ConcurrentSkipListMap<byte[], byte[]>) ois.readObject();
 
             logger.info("loaded memory file, path=" + dbFile + ", size="
                     + this.sortedMap.size());
@@ -387,7 +389,7 @@ public class MemoryStore implements Store<ByteString, ByteString, KVValue> {
                     + dbFile);
 
             // start a new one if unable to read from one on disk
-            this.sortedMap = new TreeMap<byte[], byte[]>(new KeyComparator());
+            this.sortedMap = new ConcurrentSkipListMap<byte[], byte[]>(new KeyComparator());
 
         } finally {
             try {
