@@ -46,7 +46,7 @@ public class NioMessageServiceHandler extends
 
 	private MessageService lcservice = null;
 
-	private boolean enforceOrdering = false;
+	private boolean enforceOrdering = true;
 
 	private NioQueuedRequestProcessRunner queuedRequestProcessRunner = null;
 

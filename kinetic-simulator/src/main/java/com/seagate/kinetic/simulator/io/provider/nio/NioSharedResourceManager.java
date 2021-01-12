@@ -57,7 +57,7 @@ public class NioSharedResourceManager {
 		bossGroup = new NioEventLoopGroup(0, bossTreadFactory);
 
 		// construct worker group
-		workerGroup = new NioEventLoopGroup(0, workerThreadFactory);
+		workerGroup = new NioEventLoopGroup(12, workerThreadFactory);
 	}
 
 	/**

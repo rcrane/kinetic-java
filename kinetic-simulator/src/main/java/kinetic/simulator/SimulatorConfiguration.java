@@ -101,7 +101,7 @@ public class SimulatorConfiguration extends Properties {
     /**
      * default nio event loop threads
      */
-    private static final String DEFAULT_NIO_EVENT_LOOP_THREADS = "0";
+    private static final String DEFAULT_NIO_EVENT_LOOP_THREADS = "1";
 
     /**
      * nio event loop boss threads
