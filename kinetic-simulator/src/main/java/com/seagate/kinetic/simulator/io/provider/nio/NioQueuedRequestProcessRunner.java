@@ -80,12 +80,14 @@ public class NioQueuedRequestProcessRunner implements Runnable {
 		NioRequestMessageContext requestContext = new NioRequestMessageContext(
 				ctx, message);
 
+		doProcessMessage(requestContext);
+		
 		// put to queue
-		this.lbqueue.put(requestContext);
+		//this.lbqueue.put(requestContext);
 
 		// check if there is a thread running. if not, submit to thread pool
 		// for execution.
-		checkRunning();
+		//checkRunning();
 	}
 
 	/**
